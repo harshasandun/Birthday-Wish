@@ -127,7 +127,7 @@
                     <p class="text-center mt-2 font-semibold">Click me!</p>
                 </div>
                 
-                <div class="gift-box cursor-pointer hover:scale-110 transition-transform" onclick="openGift(this)">
+                <div class="gift-box cursor-pointer hover:scale-110 transition-transform" onclick="openGift1(this)">
                     <svg viewBox="0 0 100 100" fill="#3F51B5">
                         <rect x="10" y="20" width="80" height="60" rx="5" ry="5"/>
                         <rect x="40" y="10" width="20" height="70" rx="5" ry="5"/>
@@ -167,17 +167,13 @@
     <script>
         // Birthday messages array
         const generalMessages = [
-            "May your day be as wonderful as you are!",
-            "Wishing you a day filled with happiness and a year filled with joy!",
-            "Hope your special day brings you all that your heart desires!",
-            "Here's to another year of incredible adventures and wonderful memories!",
-            "May your birthday be the start of a year filled with good luck, good health, and much happiness!"
+            "May your day be as wonderful as you are!"
         ];
         
         const surpriseMessages = [
-            "May all your birthday wishes come true!",
-            "Another year smarter, wiser, and more wonderful than ever!",
-            "Age is merely the number of years the world has been enjoying you!",
+            "Happy Birthday. I may not know what tomorrow holds for us, but I do know that you deserve all the love and happiness in the world—today and always.",
+            "“On your special day, I just want you to know how much you’ve meant to me. Our journey together will always stay in my heart. Happy Birthday.”",
+            "Happy Birthday. Even if life is pulling us in different directions, my love and respect for you will never fade. I truly wish you the best in everything.",
             "Today we celebrate you and all the joy you bring to others!",
             "Birthdays come around every year, but friends like you only come once in a lifetime!"
         ];
@@ -191,6 +187,27 @@
         
         // Gift opening function
         function openGift(element) {
+            // Rotate and hide the gift
+            element.style.animation = 'rotate 1s ease-in-out';
+            element.style.opacity = '0';
+            
+            // Update messages
+            const surpriseElement = document.getElementById('surpriseMessage');
+            const followUpElement = document.getElementById('followUpMessage');
+            
+            surpriseElement.textContent = '🎉 Surprise! 🎊';
+            followUpElement.textContent = getRandomMessage(surpriseMessages);
+            
+            // Show the message after animation completes
+            setTimeout(() => {
+                document.getElementById('messageContainer').classList.remove('hidden');
+                createMiniConfetti(element.getBoundingClientRect().left + 50, element.getBoundingClientRect().top + 50);
+            }, 1000);
+
+        }
+
+            // Gift opening function
+        function openGift1(element) {
             // Rotate and hide the gift
             element.style.animation = 'rotate 1s ease-in-out';
             element.style.opacity = '0';
@@ -335,37 +352,115 @@
             }, 5000);
             
             // Change dynamic message
-            document.getElementById('dynamicMessage').textContent = "WOW! What a celebration!";
+             document.getElementById('dynamicMessage').innerHTML = 
+                "Happy Birthday Sudu 🎂❤️ <br> 20/08/2025";
         }
         
-        // Add sound effects
-        function playSound() {
-            if (typeof AudioContext !== 'undefined') {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                oscillator.type = 'sine';
-                oscillator.frequency.value = 440;
-                gainNode.gain.value = 0.1;
-                
-                oscillator.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
-                oscillator.stop(audioCtx.currentTime + 1);
-            }
+      
+
+<!-- Previous HTML/CSS remains exactly the same until the script section -->
+
+
+    // Audio setup
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let customSoundLoaded = false;
+    const celebrationSound = new Audio();
+    
+    // Try to load custom sound file
+    celebrationSound.src = "happy-birthday-322777.mp3"; // Change this to your sound file name
+    celebrationSound.preload = "auto";
+    celebrationSound.load();
+    
+    celebrationSound.addEventListener('canplaythrough', () => {
+        customSoundLoaded = true;
+    });
+    
+    celebrationSound.addEventListener('error', () => {
+        customSoundLoaded = false;
+    });
+
+    // Set personalized message directly in code
+    function setPersonalMessage() {
+        const name = "Alex"; // Change this to the recipient's name
+        const specialMessage = "Wishing you a day as wonderful as you are!"; // Change this to your message
+        
+        document.getElementById('personalMessage').textContent = 
+            `Dear ${name}, ${specialMessage}`;
+    }
+    
+    // Call this when page loads
+    setPersonalMessage();
+
+    // Existing gift opening function
+    function openGift(element) {
+        // Rotate and hide the gift
+        element.style.animation = 'rotate 1s ease-in-out';
+        element.style.opacity = '0';
+        
+        // Show the message after animation completes
+        setTimeout(() => {
+            document.getElementById('messageContainer').classList.remove('hidden');
+            createMiniConfetti(element.getBoundingClientRect().left + 50, element.getBoundingClientRect().top + 50);
+            playCelebrationSound();
+        }, 1000);
+    }
+
+    // Play sound - tries custom file first, falls back to Web Audio
+    function playCelebrationSound() {
+        if (customSoundLoaded) {
+            // Play the loaded sound file
+            celebrationSound.currentTime = 0; // Rewind to start
+            celebrationSound.play().catch(e => {
+                console.log("Audio playback blocked:", e);
+                playSynthSound(); // Fallback to synthetic sound
+            });
+        } else {
+            playSynthSound();
         }
+    }
+    
+    // Fallback synthesized sound
+    function playSynthSound() {
+        try {
+            const now = audioContext.currentTime;
+            const osc1 = audioContext.createOscillator();
+            const osc2 = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            gainNode.gain.value = 0.3;
+            
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            osc1.type = 'sine';
+            osc2.type = 'triangle';
+            
+            osc1.frequency.setValueAtTime(440, now);
+            osc1.frequency.exponentialRampToValueAtTime(880, now + 0.2);
+            osc1.frequency.exponentialRampToValueAtTime(660, now + 0.5);
+            
+            osc2.frequency.setValueAtTime(660, now);
+            osc2.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+            osc2.frequency.exponentialRampToValueAtTime(440, now + 0.6);
+            
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1);
+            
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 1);
+            osc2.stop(now + 1);
+        } catch (e) {
+            console.log("Web Audio not supported");
+        }
+    }
+
+    // Rest of your existing JavaScript remains the same...
+    // (Mini confetti, getRandomColor, startConfetti functions stay unchanged)
+
+
+
         
-        // Play sound on gift click
-        document.querySelectorAll('.gift-box').forEach(box => {
-            box.addEventListener('click', playSound);
-        });
-        
-        document.getElementById('confettiCanvas').addEventListener('click', () => {
-            startConfetti();
-        });
         
         // Resize canvas on window resize
         window.addEventListener('resize', () => {
@@ -376,3 +471,4 @@
     </script>
 </body>
 </html>
+
